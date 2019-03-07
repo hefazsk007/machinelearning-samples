@@ -1,10 +1,7 @@
-﻿using Common;
-using Microsoft.ML;
-using Microsoft.ML.Core.Data;
+﻿using Microsoft.ML;
 using Microsoft.ML.Data;
 using Microsoft.ML.Trainers;
 using System;
-using System.Collections.Generic;
 using System.IO;
 
 namespace ProductRecommender
@@ -18,11 +15,11 @@ namespace ProductRecommender
         //   0  2
         private static string BaseDataSetRelativePath = @"../../../Data";
         private static string TrainingDataRelativePath = $"{BaseDataSetRelativePath}/Amazon0302.txt";
-        private static string TrainingDataLocation = GetDataSetAbsolutePath(TrainingDataRelativePath);
+        private static string TrainingDataLocation = GetAbsolutePath(TrainingDataRelativePath);
 
         private static string BaseModelRelativePath = @"../../../Model";
         private static string ModelRelativePath = $"{BaseModelRelativePath}/model.zip";
-        private static string ModelPath = GetDataSetAbsolutePath(ModelRelativePath);
+        private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
         static void Main(string[] args)
         {
@@ -31,12 +28,12 @@ namespace ProductRecommender
 
             //STEP 2: Read the trained data using TextLoader by defining the schema for reading the product co-purchase dataset
             //        Do remember to replace amazon0302.txt with dataset from https://snap.stanford.edu/data/amazon0302.html
-            var traindata = mlContext.Data.ReadFromTextFile(path:TrainingDataLocation,
+            var traindata = mlContext.Data.LoadFromTextFile(path:TrainingDataLocation,
                                                       columns: new[]
                                                                 {
-                                                                    new TextLoader.Column(DefaultColumnNames.Label, DataKind.R4, 0),
-                                                                    new TextLoader.Column(name:nameof(ProductEntry.ProductID), type:DataKind.U4, source: new [] { new TextLoader.Range(0) }, keyCount: new KeyCount(262111)), 
-                                                                    new TextLoader.Column(name:nameof(ProductEntry.CoPurchaseProductID), type:DataKind.U4, source: new [] { new TextLoader.Range(1) }, keyCount: new KeyCount(262111))
+                                                                    new TextLoader.Column(DefaultColumnNames.Label, DataKind.Single, 0),
+                                                                    new TextLoader.Column(name:nameof(ProductEntry.ProductID), dataKind:DataKind.UInt32, source: new [] { new TextLoader.Range(0) }, keyCount: new KeyCount(262111)), 
+                                                                    new TextLoader.Column(name:nameof(ProductEntry.CoPurchaseProductID), dataKind:DataKind.UInt32, source: new [] { new TextLoader.Range(1) }, keyCount: new KeyCount(262111))
                                                                 },
                                                       hasHeader: true,
                                                       separatorChar: '\t');
@@ -76,12 +73,12 @@ namespace ProductRecommender
             Console.ReadKey();
         }
 
-        public static string GetDataSetAbsolutePath(string relativeDatasetPath)
+        public static string GetAbsolutePath(string relativeDatasetPath)
         {
             FileInfo _dataRoot = new FileInfo(typeof(Program).Assembly.Location);
             string assemblyFolderPath = _dataRoot.Directory.FullName;
 
-            string fullPath = Path.Combine(assemblyFolderPath + "/" + relativeDatasetPath);
+            string fullPath = Path.Combine(assemblyFolderPath, relativeDatasetPath);
 
             return fullPath;
         }
@@ -93,10 +90,10 @@ namespace ProductRecommender
 
         public class ProductEntry
         {
-            [KeyType(Count = 262111)]
+            [KeyType(count : 262111)]
             public uint ProductID { get; set; }
 
-            [KeyType(Count = 262111)]
+            [KeyType(count : 262111)]
             public uint CoPurchaseProductID { get; set; }
         }
     }

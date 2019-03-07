@@ -1,19 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.IO;
-
 // Requires following NuGet packages
 // NuGet package -> Microsoft.Extensions.Configuration
 // NuGet package -> Microsoft.Extensions.Configuration.Json
 using Microsoft.Extensions.Configuration;
-
 using Microsoft.ML;
-using Microsoft.ML.Transforms.Conversions;
-using Microsoft.ML.Core.Data;
-
 using Common;
 using GitHubLabeler.DataStructures;
 using Microsoft.ML.Data;
+using static Microsoft.ML.TrainCatalogBase;
 
 namespace GitHubLabeler
 {
@@ -23,11 +19,11 @@ namespace GitHubLabeler
 
         private static string BaseDatasetsRelativePath = @"../../../../Data";
         private static string DataSetRelativePath = $"{BaseDatasetsRelativePath}/corefx-issues-train.tsv";
-        private static string DataSetLocation = GetDataSetAbsolutePath(DataSetRelativePath);
+        private static string DataSetLocation = GetAbsolutePath(DataSetRelativePath);
 
         private static string BaseModelsRelativePath = @"../../../../MLModels";
         private static string ModelRelativePath = $"{BaseModelsRelativePath}/GitHubLabelerModel.zip";
-        private static string ModelPath = GetDataSetAbsolutePath(ModelRelativePath);
+        private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
 
         public enum MyTrainerStrategy : int { SdcaMultiClassTrainer = 1, OVAAveragedPerceptronTrainer = 2 };
@@ -57,7 +53,7 @@ namespace GitHubLabeler
             var mlContext = new MLContext(seed: 1);
 
             // STEP 1: Common data loading configuration
-            var trainingDataView = mlContext.Data.ReadFromTextFile<GitHubIssue>(DataSetLocation, hasHeader: true, separatorChar:'\t', supportSparse: false);
+            var trainingDataView = mlContext.Data.LoadFromTextFile<GitHubIssue>(DataSetLocation, hasHeader: true, separatorChar:'\t', allowSparse: false);
              
             // STEP 2: Common data process configuration with pipeline data transformations
             var dataProcessPipeline = mlContext.Transforms.Conversion.MapValueToKey(outputColumnName: DefaultColumnNames.Label,inputColumnName:nameof(GitHubIssue.Area))
@@ -109,13 +105,13 @@ namespace GitHubLabeler
             //Measure cross-validation time
             var watchCrossValTime = System.Diagnostics.Stopwatch.StartNew();
 
-            var crossValidationResults = mlContext.MulticlassClassification.CrossValidate(data:trainingDataView, estimator:trainingPipeline, numFolds: 6, labelColumn:DefaultColumnNames.Label);
+            CrossValidationResult<MultiClassClassifierMetrics>[] crossValidationResults = mlContext.MulticlassClassification.CrossValidate(data:trainingDataView, estimator:trainingPipeline, numFolds: 6, labelColumn:DefaultColumnNames.Label);
 
             //Stop measuring time
             watchCrossValTime.Stop();
             long elapsedMs = watchCrossValTime.ElapsedMilliseconds;
-            Console.WriteLine($"Time Cross-Validating: {elapsedMs} miliSecs");
-           
+            Console.WriteLine($"Time Cross-Validating: {elapsedMs} miliSecs");           
+            
             ConsoleHelper.PrintMulticlassClassificationFoldsAverageMetrics(trainer.ToString(), crossValidationResults);
 
             // STEP 5: Train the model fitting to the DataSet
@@ -191,12 +187,12 @@ namespace GitHubLabeler
             Configuration = builder.Build();
         }
 
-        public static string GetDataSetAbsolutePath(string relativeDatasetPath)
+        public static string GetAbsolutePath(string relativePath)
         {
             FileInfo _dataRoot = new FileInfo(typeof(Program).Assembly.Location);
             string assemblyFolderPath = _dataRoot.Directory.FullName;
 
-            string fullPath = Path.Combine(assemblyFolderPath + "/" + relativeDatasetPath);
+            string fullPath = Path.Combine(assemblyFolderPath, relativePath);
 
             return fullPath;
         }

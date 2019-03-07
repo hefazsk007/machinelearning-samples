@@ -2,7 +2,6 @@
 using System.IO;
 
 using Microsoft.ML;
-using Microsoft.ML.Core.Data;
 using Microsoft.ML.Data;
 using MulticlassClassification_Iris.DataStructures;
 
@@ -16,13 +15,13 @@ namespace MulticlassClassification_Iris
         private static string TrainDataRelativePath = $"{BaseDatasetsRelativePath}/iris-train.txt";
         private static string TestDataRelativePath = $"{BaseDatasetsRelativePath}/iris-test.txt";
 
-        private static string TrainDataPath = GetDataSetAbsolutePath(TrainDataRelativePath);
-        private static string TestDataPath = GetDataSetAbsolutePath(TestDataRelativePath);
+        private static string TrainDataPath = GetAbsolutePath(TrainDataRelativePath);
+        private static string TestDataPath = GetAbsolutePath(TestDataRelativePath);
 
         private static string BaseModelsRelativePath = @"../../../../MLModels";
         private static string ModelRelativePath = $"{BaseModelsRelativePath}/IrisClassificationModel.zip";
 
-        private static string ModelPath = GetDataSetAbsolutePath(ModelRelativePath);
+        private static string ModelPath = GetAbsolutePath(ModelRelativePath);
 
         private static void Main(string[] args)
         {
@@ -43,21 +42,21 @@ namespace MulticlassClassification_Iris
         private static void BuildTrainEvaluateAndSaveModel(MLContext mlContext)
         {
             // STEP 1: Common data loading configuration
-            var trainingDataView = mlContext.Data.ReadFromTextFile<IrisData>(TrainDataPath, hasHeader: true);
-            var testDataView = mlContext.Data.ReadFromTextFile<IrisData>(TestDataPath, hasHeader: true);
+            var trainingDataView = mlContext.Data.LoadFromTextFile<IrisData>(TrainDataPath, hasHeader: true);
+            var testDataView = mlContext.Data.LoadFromTextFile<IrisData>(TestDataPath, hasHeader: true);
             
 
             // STEP 2: Common data process configuration with pipeline data transformations
-            var dataProcessPipeline = mlContext.Transforms.Concatenate(DefaultColumnNames.Features, "SepalLength",
-                                                                                   "SepalWidth",
-                                                                                   "PetalLength",
-                                                                                   "PetalWidth")
+            var dataProcessPipeline = mlContext.Transforms.Concatenate(DefaultColumnNames.Features, nameof(IrisData.SepalLength),
+                                                                                   nameof(IrisData.SepalWidth),
+                                                                                   nameof(IrisData.PetalLength),
+                                                                                   nameof(IrisData.PetalWidth))
                                                                        .AppendCacheCheckpoint(mlContext); 
                                                                        // Use in-memory cache for small/medium datasets to lower training time. 
                                                                        // Do NOT use it (remove .AppendCacheCheckpoint()) when handling very large datasets. 
 
             // STEP 3: Set the training algorithm, then append the trainer to the pipeline  
-            var trainer = mlContext.MulticlassClassification.Trainers.StochasticDualCoordinateAscent(labelColumn: DefaultColumnNames.Label, featureColumn: DefaultColumnNames.Features);
+            var trainer = mlContext.MulticlassClassification.Trainers.StochasticDualCoordinateAscent(labelColumnName: DefaultColumnNames.Label, featureColumnName: DefaultColumnNames.Features);
             var trainingPipeline = dataProcessPipeline.Append(trainer);
 
             // STEP 4: Train the model fitting to the DataSet
@@ -127,14 +126,12 @@ namespace MulticlassClassification_Iris
 
         }
 
-        public static string GetDataSetAbsolutePath(string relativeDatasetPath)
+        public static string GetAbsolutePath(string relativePath)
         {
             FileInfo _dataRoot = new FileInfo(typeof(Program).Assembly.Location);
             string assemblyFolderPath = _dataRoot.Directory.FullName;
-            Console.WriteLine($"Assembly Folder Path: " + assemblyFolderPath);
 
-            string fullPath = Path.Combine(assemblyFolderPath + "/" + relativeDatasetPath);
-            Console.WriteLine("\n" + $"Full Path: " + fullPath + "\n");
+            string fullPath = Path.Combine(assemblyFolderPath, relativePath);
 
             return fullPath;
         }
