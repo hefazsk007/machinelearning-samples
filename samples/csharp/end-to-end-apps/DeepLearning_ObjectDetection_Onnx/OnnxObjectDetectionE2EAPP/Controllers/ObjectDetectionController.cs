@@ -20,6 +20,8 @@ namespace OnnxObjectDetectionE2EAPP.Controllers
         private readonly IOnnxModelScorer _modelScorer;
 
         private string base64String = string.Empty;
+        static string imagesFolderRelativePath = @"ImagesList";
+        static string imagesFolderPath = ModelHelpers.GetAbsolutePath(imagesFolderRelativePath);
 
         public ObjectDetectionController(IOnnxModelScorer modelScorer, ILogger<ObjectDetectionController> logger, IImageFileWriter imageWriter) //When using DI/IoC (IImageFileWriter imageWriter)
         {
@@ -27,7 +29,7 @@ namespace OnnxObjectDetectionE2EAPP.Controllers
             _modelScorer = modelScorer;
             _logger = logger;
             _imageWriter = imageWriter;
-            _imagesTmpFolder = ModelHelpers.GetAbsolutePath(@"../../../ImagesTemp");
+            _imagesTmpFolder = ModelHelpers.GetAbsolutePath(@"ImagesTemp");
         }
 
         public class Result
@@ -69,6 +71,36 @@ namespace OnnxObjectDetectionE2EAPP.Controllers
                 fileName = await _imageWriter.UploadImageAsync(imageFile, _imagesTmpFolder);
                 imageFilePath = Path.Combine(_imagesTmpFolder, fileName);
                 
+                //Detect the objects in the image                
+                var result = DetectAndPaintImage(imageFilePath);
+                return Ok(result);
+            }
+            catch (Exception e)
+            {
+                _logger.LogInformation("Error is: " + e.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpPost]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(400)]
+        [Route("Identify")]
+        public IActionResult Identify([FromBody] string fileName)
+        {
+            string imageFilePath = "";
+            try
+            {
+                DirectoryInfo dir = new DirectoryInfo(imagesFolderPath);
+                FileInfo[] files = dir.GetFiles();
+                foreach (FileInfo file in files)
+                {
+                    if (file.Name.Equals(fileName))
+                    {
+                        imageFilePath = Path.Combine(imagesFolderPath, fileName);
+                    }
+
+                }
                 //Detect the objects in the image                
                 var result = DetectAndPaintImage(imageFilePath);
                 return Ok(result);

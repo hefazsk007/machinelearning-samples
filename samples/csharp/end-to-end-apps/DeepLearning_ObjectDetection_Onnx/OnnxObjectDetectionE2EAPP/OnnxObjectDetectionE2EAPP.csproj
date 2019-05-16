@@ -5,19 +5,30 @@
     <AspNetCoreHostingModel>InProcess</AspNetCoreHostingModel>
     <UserSecretsId>07b5f177-2aea-4405-8e78-4121f2a881ff</UserSecretsId>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="ImagesList\wikimedia.md" />
+  </ItemGroup>
  
   <ItemGroup>
     <Content Include="ImagesList\image2.jpg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ImagesList\image4.jpg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>    
     <Content Include="ImagesList\image1.jpg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="ImagesList\image3.jpg">
       <CopyToPublishDirectory>PreserveNewest</CopyToPublishDirectory>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="ImagesList\wikimedia.md">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
  

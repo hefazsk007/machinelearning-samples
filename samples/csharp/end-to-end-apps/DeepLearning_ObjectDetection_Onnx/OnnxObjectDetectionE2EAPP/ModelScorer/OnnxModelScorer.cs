@@ -36,8 +36,8 @@ namespace OnnxObjectDetectionE2EAPP.OnnxModelScorers
 
         public OnnxModelScorer()
         {
-            var assetsPath = ModelHelpers.GetAbsolutePath(@"../../../Model");
-            _imagesTmpFolder = ModelHelpers.GetAbsolutePath(@"../../../tempImages");
+            var assetsPath = ModelHelpers.GetAbsolutePath(@"Model");
+            _imagesTmpFolder = ModelHelpers.GetAbsolutePath(@"tempImages");
             _modelLocation = Path.Combine(assetsPath, "TinyYolo2_model.onnx");
             //_modelLocation = Path.Combine(assetsPath, "yolov3.onnx");
 
@@ -143,9 +143,7 @@ namespace OnnxObjectDetectionE2EAPP.OnnxModelScorers
                   graph.DrawRectangle(pen, x, y, w, h);
               }
             }
-
-            string outputImagePath = ModelHelpers.GetAbsolutePath(@"../../../Output/outputImage.jpg");
-            image.Save(outputImagePath);
+          
             return image;
         }
 

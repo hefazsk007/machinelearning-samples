@@ -10,12 +10,12 @@
 
 <style>
     ul {
-        list-style-type: none;
-        margin-top: 20px;
+        list-style-type: none;        
         text-align: center;
     }
 
         ul img {
+            margin-top:20px;
             padding: 10px;
         }
 
@@ -23,19 +23,11 @@
                 border: 1px solid #ddd;
             }
 
-    #result {
+    #result {       
         height: 400px;
     }
 
-    /*#imagediv img {
-        width: 150%;
-    }*/
-
-    img:not([src]) {
-        background-color: lightgray
-    }
-
-    #imagediv {
+    #resultImagediv {
         align-content: center
     }
 
@@ -43,46 +35,57 @@
         color: blue;
         text-align: center;
     }
+    #processedImageDiv {
+        color: blue;
+        text-align: center;
+    }
+    #inputImageDiv {
+        color: blue;
+        text-align: center;
+    }
 </style>
 
-
-<div id="headerDiv"><h1>Object Detection</h1></div>
-<br />
+<div id="headerDiv"><h2>Object Detection</h2></div>
 
 <div class="container">
     <div class="row">
-        <div id="imagediv" class="col-sm-6">            
-           <img id="result" />
-        </div>
-        <div class="col-sm-6">
-            <ul>
-                <li><img class="input-image" src="~/ImagesList/image1.jpg" alt="Sample Photo" height="100" width="100" /></li>
-                <li><img class="input-image" src="~/ImagesList/image2.jpg" alt="Sample Photo" height="100" width="100" /></li>
-                <li><img class="input-image" src="~/ImagesList/image3.jpg" alt="Sample Photo" height="100" width="100" /></li>
-                <li><img class="input-image" src="~/ImagesList/image4.jpg" alt="Sample Photo" height="100" width="100" /></li>
-            </ul>
+        <div id="processedImageDiv" class="col-sm-6">Processed Image</div>
+        <div id="inputImageDiv" class="col-sm-6">Input Images</div>
+    </div>
+        <div class="row">
+            <div id="resultImagediv" class="col-sm-6">
+                <img id="result" />
+            </div>
+            <div class="col-sm-6" id="imDiv">
+                <ul id="imagesUL"></ul>
+                @*<ul>
+                    <li><img class="input-image" src="~/ImagesList/image1.jpg" alt="Sample Photo" height="100" width="100" /></li>
+                    <li><img class="input-image" src="~/ImagesList/image2.jpg" alt="Sample Photo" height="100" width="100" /></li>
+                    <li><img class="input-image" src="~/ImagesList/image3.jpg" alt="Sample Photo" height="100" width="100" /></li>
+                    <li><img class="input-image" src="~/ImagesList/image4.jpg" alt="Sample Photo" height="100" width="100" /></li>
+                </ul>*@
+            </div>
         </div>
     </div>
-</div>
 
-<div class="container">
-    <form method="post" enctype="multipart/form-data">
-        <br />
-        <div>
-            <h5>Try uploading your own images:</h5>
-        </div>
-        <br />
-        <div>
-            <input type="file" name="imageFile">
-        </div>
-        <div>
+    <div class="container">
+        <form method="post" enctype="multipart/form-data">
             <br />
-            <input type="submit" value="Upload File" name="submit">
-        </div>
-    </form>
-    <br />
-    <br />
-</div>
+            <div>
+                <h5 style="color:blue">Try uploading your own images:</h5>
+            </div>
+            <br />
+            <div>
+                <input type="file" name="imageFile">
+                @*</div>
+                    <div>
+                        <br />*@
+                <input type="submit" value="Upload File" name="submit" class="btn btn-primary">
+            </div>
+        </form>
+        <br />
+        <br />
+    </div>
 
 
 
